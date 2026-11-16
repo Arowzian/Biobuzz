@@ -135,8 +135,8 @@ public class MainTeleOp extends OpMode {
             resettingOrientation = false;
         }
 
+        //TODO: Check latency difference and accuracy between onboard control hub & pinpoint
         robot.pinpoint.update();
-        //TODO: Finish refactoring
 
         double leftStickY = -gamepad1.left_stick_y;
         TelemetryPacket packet = new TelemetryPacket();

@@ -50,4 +50,8 @@ public class PIDController {
 
         return P + I + D;
     }
+
+    public double getError() {
+        return error;
+    }
 }

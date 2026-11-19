@@ -61,6 +61,7 @@ public class MainTeleOp extends OpMode {
     double changeDirection;
     double previousLaunchingPosition;
     ElapsedTime timer;
+    ElapsedTime intakeTimer;
     double[] prevVelocity = new double[30];
     boolean firstFrame = true;
     boolean flowerServoUp = true;
@@ -96,7 +97,8 @@ public class MainTeleOp extends OpMode {
         dashboard = FtcDashboard.getInstance();
         dashboardTelemetry = dashboard.getTelemetry();
         timer = new ElapsedTime();
-        fValue = 0.7;
+        intakeTimer = new ElapsedTime();
+        fValue = 0.8;
         launchingPIDF.setTarget(0.95);
 
         firstFrame = true;
@@ -122,7 +124,7 @@ public class MainTeleOp extends OpMode {
 
 
         double launchingPower = 0;
-        double intakePower = -0.7;
+        double intakePower = 0;
 
         if(gamepad1.start) {
             resetOrientation();
@@ -197,6 +199,12 @@ public class MainTeleOp extends OpMode {
             avg /= prevVelocity.length;
         }
 
+        if(Math.abs(avg - 1400) < 75){
+            intakeTimer.reset();
+            intakePower = -0.8;
+            robot.holdServo.setPosition(config.getTopServoPos());
+        }
+
         // Toggles the Flower Servo on and off
         if(gamepad1.xWasPressed()) {
             if(flowerServoUp){
@@ -223,6 +231,9 @@ public class MainTeleOp extends OpMode {
         // CODE FOR LAUNCHING
         if (gamepad1.right_trigger > 0) {
 
+            if(intakeTimer.seconds() < 0.2){
+                intakePower = -0.8;
+            }
             // Increment frame
             frame++;
 
@@ -238,7 +249,11 @@ public class MainTeleOp extends OpMode {
                     if (detection instanceof AprilTagSingleDetection)
                     {
                         //TODO: Make stuff for handling single instances
+                        gamepad1.rumble(200);
+                        firstFrame = false;
+                        target = Math.toRadians(detection.ftcPose.bearing) + heading;
                     } else {
+                        gamepad1.rumble(200);
                         firstFrame = false;
                         AprilTagClusterDetection clusterDetection = (AprilTagClusterDetection) detection;
                         target = Math.toRadians(clusterDetection.ftcPose.bearing) + heading;
@@ -279,9 +294,9 @@ public class MainTeleOp extends OpMode {
 
         // Handles intaking
         if(gamepad1.right_bumper) {
-            intakePower = -0.7;
+            intakePower = -1;
         } else if(gamepad1.left_bumper) {
-            intakePower = 0.7;
+            intakePower = 1;
         }
 
 
